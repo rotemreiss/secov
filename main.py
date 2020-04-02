@@ -187,8 +187,6 @@ def main():
     java_route_regex = re.compile(r'@(.)+Mapping')
 
     routes = grep_annotations_multiple_files(code_files, java_route_regex, args.project_dir, 'code')
-    # for route in routes:
-    #     print(route)
 
     # Get the tests coverage annotations
     test_annotation_regex = re.compile(r'@CoveredRoute')
@@ -209,6 +207,10 @@ def main():
     db.insert_tests(test_annotations, pid)
 
     db.close()
+
+    # Print the results
+    print("[+] Found and stored {} routes.".format(str(len(routes))))
+    print("[+] Found and stored {} tests.".format(str(len(test_annotations))))
 
 
 if __name__ == "__main__":
