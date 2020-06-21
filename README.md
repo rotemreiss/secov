@@ -21,8 +21,14 @@ The annotation is written like the following:
 
 ## Installation
 
-### Clone the repository
-- `git clone https://github.com/rotemreiss/secov.git`
+```bash
+# Clone the repository.
+git clone https://github.com/rotemreiss/secov.git
+
+# Install Python dependencies.
+cd secov
+pip3 install -r requirements.txt
+```
 
 ### Setup
 - Copy `config.py.template` to `config.py`\

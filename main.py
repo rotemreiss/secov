@@ -5,6 +5,8 @@ import re
 import os
 import db
 import hashlib
+import shutil
+from git import Repo
 
 
 def banner():
@@ -170,14 +172,37 @@ def main():
     parser = argparse.ArgumentParser(description='Calculates the security coverage of a Java project.')
     parser.add_argument('-p', '--project', help='A system identifier for the project.', dest='project',
                         required=True)
-    parser.add_argument('-d', '--path', help='The project directory to analyze.', type=dir_path, dest='project_dir', default='./')
-    parser.add_argument('-ce', '--code-extensions', help='The code files extensions.', default=['java,class'], type=str, dest='code_extensions')
-    parser.add_argument('-te', '--test-extensions', help='The test files extensions.', default=['groovy'], type=str, dest='test_extensions')
+    parser.add_argument('-g', '--git-repo', help='A Git repository URL instead of a local directory.', dest='git_repo')
+    parser.add_argument('-b', '--git-branch', help='A specific git branch to clone.', dest='git_branch')
+    parser.add_argument('-d', '--path', help='The project directory to analyze.',
+                        type=dir_path,
+                        dest='project_dir')
+
+    parser.add_argument('-ce', '--code-extensions', help='The code files extensions.', default=['java,class'],
+                        type=str,
+                        dest='code_extensions')
+    parser.add_argument('-te', '--test-extensions', help='The test files extensions.', default=['groovy'],
+                        type=str,
+                        dest='test_extensions')
 
     args = parser.parse_args()
 
+    # Validate some of our args.
+    if not args.git_repo and not args.project_dir:
+        parser.error('You should use --git-repo or --path, none specified.')
+
     # Print our banner
     banner()
+
+    # Clone repository in case of a git repository instead of a local URI.
+    if args.git_repo:
+        if not args.project_dir:
+            args.project_dir = f'./projects/{args.project}'
+
+        # Delete any existing directory if exists.
+        shutil.rmtree(args.project_dir, True)
+        Repo.clone_from(args.git_repo, args.project_dir, branch=args.git_branch)
+
 
     #@todo Extend to support @RequestHeader and @RequestParam
 
