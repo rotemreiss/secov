@@ -168,12 +168,62 @@ def get_route_from_annotation(annotation, is_base_route):
         return rel_placeholder + get_first_route(content)
 
 
-def main():
+def main(project, git_repo, git_branch="master", project_dir=False, code_extensions="java,class", test_extensions="groovy"):
+    # Clone repository in case of a git repository instead of a local URI.
+    if git_repo:
+        if not project_dir:
+            base_path = os.path.dirname(os.path.realpath(__file__))
+            project_dir = f'{base_path}/../projects/{project}'
+
+        # Delete any existing directory if exists.
+        shutil.rmtree(project_dir, True)
+        Repo.clone_from(git_repo, project_dir, branch=git_branch)
+
+    # Print our banner
+    banner()
+
+    #@todo Extend to support @RequestHeader and @RequestParam
+
+    code_ext = code_extensions.split(",") if "," in code_extensions else code_extensions
+    code_files = get_code_file_names(project_dir, tuple(code_ext))
+
+    # @todo Split to a mappings file (yaml/json/..)
+    java_route_regex = re.compile(r'@(.)+Mapping')
+
+    routes = grep_annotations_multiple_files(code_files, java_route_regex, project_dir, 'code')
+
+    # Get the tests coverage annotations
+    test_annotation_regex = re.compile(r'@CoveredRoute')
+    test_ext = test_extensions.split(",") if "," in test_extensions else test_extensions
+    test_files = get_code_file_names(project_dir, tuple(test_ext))
+    test_annotations = grep_annotations_multiple_files(test_files, test_annotation_regex, project_dir, 'tests')
+
+    # Init DB.
+    db.db_install()
+    db.connect()
+
+    pid = db.insert_project(project)
+    # We are clearing all the data and then adding the new one to simplify things.
+    db.clear_project_data(pid)
+
+    # Insert the routes and the tests to the DB
+    db.insert_routes(routes, pid)
+    db.insert_tests(test_annotations, pid)
+
+    db.close()
+
+    # Print the results
+    print("[+] Found and stored {} routes.".format(str(len(routes))))
+    print("[+] Found and stored {} tests.".format(str(len(test_annotations))))
+
+
+def interactive():
     parser = argparse.ArgumentParser(description='Calculates the security coverage of a Java project.')
     parser.add_argument('-p', '--project', help='A system identifier for the project.', dest='project',
                         required=True)
     parser.add_argument('-g', '--git-repo', help='A Git repository URL instead of a local directory.', dest='git_repo')
-    parser.add_argument('-b', '--git-branch', help='A specific git branch to clone.', dest='git_branch')
+    parser.add_argument('-b', '--git-branch', help='A specific git branch to clone.', dest='git_branch',
+                        default="master")
     parser.add_argument('-d', '--path', help='The project directory to analyze.',
                         type=dir_path,
                         dest='project_dir')
@@ -191,52 +241,8 @@ def main():
     if not args.git_repo and not args.project_dir:
         parser.error('You should use --git-repo or --path, none specified.')
 
-    # Print our banner
-    banner()
-
-    # Clone repository in case of a git repository instead of a local URI.
-    if args.git_repo:
-        if not args.project_dir:
-            args.project_dir = f'./projects/{args.project}'
-
-        # Delete any existing directory if exists.
-        shutil.rmtree(args.project_dir, True)
-        Repo.clone_from(args.git_repo, args.project_dir, branch=args.git_branch)
-
-
-    #@todo Extend to support @RequestHeader and @RequestParam
-
-    code_ext = args.code_extensions.split(",") if "," in args.code_extensions else args.code_extensions
-    code_files = get_code_file_names(args.project_dir, tuple(code_ext))
-    # @todo Split to a mappings file (yaml/json/..)
-    java_route_regex = re.compile(r'@(.)+Mapping')
-
-    routes = grep_annotations_multiple_files(code_files, java_route_regex, args.project_dir, 'code')
-
-    # Get the tests coverage annotations
-    test_annotation_regex = re.compile(r'@CoveredRoute')
-    test_ext = args.test_extensions.split(",") if "," in args.test_extensions else args.test_extensions
-    test_files = get_code_file_names(args.project_dir, tuple(test_ext))
-    test_annotations = grep_annotations_multiple_files(test_files, test_annotation_regex, args.project_dir, 'tests')
-
-    # Init DB.
-    db.db_install()
-    db.connect()
-
-    pid = db.insert_project(args.project)
-    # We are clearing all the data and then adding the new one to simplify things.
-    db.clear_project_data(pid)
-
-    # Insert the routes and the tests to the DB
-    db.insert_routes(routes, pid)
-    db.insert_tests(test_annotations, pid)
-
-    db.close()
-
-    # Print the results
-    print("[+] Found and stored {} routes.".format(str(len(routes))))
-    print("[+] Found and stored {} tests.".format(str(len(test_annotations))))
+    main(args.project, args.git_repo, args.git_branch, args.project_dir, args.code_extensions, args.test_extensions)
 
 
 if __name__ == "__main__":
-    main()
+    interactive()

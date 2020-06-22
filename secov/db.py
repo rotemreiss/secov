@@ -6,7 +6,7 @@ import config
 
 
 def db_install():
-    if not (os.path.isfile('./' + config.sqli_db)):
+    if not (os.path.isfile(config.sqli_db)):
         db = sqlite3.connect(config.sqli_db)
         cursor = db.cursor()
 
