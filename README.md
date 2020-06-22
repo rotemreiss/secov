@@ -45,9 +45,9 @@ SeCov was developed and tested only with __Python3__.
 ## Usage
 
 - List all options\
-  ```python main.py --help```
+  ```python secov.py --help```
 - Scan a project\
-  ```python main.py -p my_super_secured_project -d /Users/johndoe/projects/my-secured-project/```
+  ```python secov.py -p my_super_secured_project -d /Users/johndoe/projects/my-secured-project/```
 
 ---
 ## Roadmap
