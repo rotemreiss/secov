@@ -1,1 +1,0 @@
-from .secov import main
