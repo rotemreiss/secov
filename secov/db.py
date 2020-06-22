@@ -2,12 +2,13 @@
 # coding=utf-8
 import os
 import sqlite3
-import config
 
 
-def db_install():
-    if not (os.path.isfile(config.sqli_db)):
-        db = sqlite3.connect(config.sqli_db)
+def db_install(db_path):
+    global sqli_db
+    sqli_db = db_path
+    if not (os.path.isfile(sqli_db)):
+        db = sqlite3.connect(sqli_db)
         cursor = db.cursor()
 
         cursor.execute('''
@@ -27,10 +28,11 @@ def db_install():
 
 
 def connect():
+    global sqli_db
     global db
     global cursor
 
-    db = sqlite3.connect(config.sqli_db)
+    db = sqlite3.connect(sqli_db)
     cursor = db.cursor()
 
 

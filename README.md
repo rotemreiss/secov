@@ -30,11 +30,6 @@ cd secov
 pip3 install -r requirements.txt
 ```
 
-### Setup
-- Copy `config.py.template` to `config.py`\
-  ```cp config.py.template config.py```
-- You may now change the SQLite DB file location
-
 ---
 
 ## Recommended Python Version
@@ -48,7 +43,10 @@ SeCov was developed and tested only with __Python3__.
   ```python secov.py --help```
 - Scan a project\
   ```python secov.py -p my_super_secured_project -d /Users/johndoe/projects/my-secured-project/```
-
+- Custom Sqlite file path - By default the sqlite file is saved to /tmp/secov.sqlite
+  ```bash
+  python secov.py -p my_super_secured_project -d /Users/johndoe/projects/my-secured-project/
+  ```
 ---
 ## Roadmap
 - Support other languages and frameworks (PHP will probably be the next). Contributions are most welcome)

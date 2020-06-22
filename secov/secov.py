@@ -3,11 +3,21 @@
 import argparse
 import re
 import os
-import db
 import hashlib
 import shutil
 from git import Repo
 
+# Import our db file.
+# @todo Find a better way to do it.
+try:
+    from secov import db
+except ImportError:
+    pass
+
+try:
+    import db
+except ImportError:
+    exit()
 
 def banner():
     print("""                                        
@@ -112,9 +122,9 @@ def grep_annotations_multiple_files(files_list, regex, base_path, grep_type):
     annotations_list = []
     for f in files_list:
         annotations = []
-        if grep_type is "code":
+        if grep_type == "code":
             annotations = grep_code_annotations(f, regex, base_path)
-        elif grep_type is "tests":
+        elif grep_type == "tests":
             annotations = grep_test_annotations(f, regex)
 
         if annotations:
@@ -168,7 +178,8 @@ def get_route_from_annotation(annotation, is_base_route):
         return rel_placeholder + get_first_route(content)
 
 
-def main(project, git_repo, git_branch="master", project_dir=False, code_extensions="java,class", test_extensions="groovy"):
+def main(db_path, project, git_repo, git_branch="master", project_dir=False, code_extensions="java,class", test_extensions="groovy"):
+
     # Clone repository in case of a git repository instead of a local URI.
     if git_repo:
         if not project_dir:
@@ -199,7 +210,7 @@ def main(project, git_repo, git_branch="master", project_dir=False, code_extensi
     test_annotations = grep_annotations_multiple_files(test_files, test_annotation_regex, project_dir, 'tests')
 
     # Init DB.
-    db.db_install()
+    db.db_install(db_path)
     db.connect()
 
     pid = db.insert_project(project)
@@ -228,6 +239,9 @@ def interactive():
                         type=dir_path,
                         dest='project_dir')
 
+    parser.add_argument('--db', help='The DB file directory (absolute path).', dest='db_path',
+                        default="/tmp/secov.sqlite")
+
     parser.add_argument('-ce', '--code-extensions', help='The code files extensions.', default=['java,class'],
                         type=str,
                         dest='code_extensions')
@@ -241,7 +255,7 @@ def interactive():
     if not args.git_repo and not args.project_dir:
         parser.error('You should use --git-repo or --path, none specified.')
 
-    main(args.project, args.git_repo, args.git_branch, args.project_dir, args.code_extensions, args.test_extensions)
+    main(args.db_path, args.project, args.git_repo, args.git_branch, args.project_dir, args.code_extensions, args.test_extensions)
 
 
 if __name__ == "__main__":
