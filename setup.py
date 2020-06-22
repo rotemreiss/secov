@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="secov",
-    version="0.0.1",
+    version="0.9",
     author="Rotem Reiss",
     author_email="reiss.r@gmail.com",
     description="Determine the security coverage from code project.",
@@ -18,5 +18,10 @@ setup(
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
-    ]
+    ],
+    entry_points={
+        'console_scripts': [
+            'secov=secov.main:interactive',
+        ],
+    },
 )

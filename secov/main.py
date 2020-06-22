@@ -6,18 +6,8 @@ import os
 import hashlib
 import shutil
 from git import Repo
+from secov import db
 
-# Import our db file.
-# @todo Find a better way to do it.
-try:
-    from secov import db
-except ImportError:
-    pass
-
-try:
-    import db
-except ImportError:
-    exit()
 
 def banner():
     print("""                                        
@@ -258,5 +248,5 @@ def interactive():
     main(args.db_path, args.project, args.git_repo, args.git_branch, args.project_dir, args.code_extensions, args.test_extensions)
 
 
-# if __name__ == "__main__":
-#     interactive()
+if __name__ == "__main__":
+    interactive()

@@ -27,7 +27,9 @@ git clone https://github.com/rotemreiss/secov.git
 
 # Install Python dependencies.
 cd secov
-pip3 install -r requirements.txt
+pip3 install .
+
+# Now it should be available both in other Python scripts and directly in the CLI as `secov`
 ```
 
 ---
@@ -39,20 +41,23 @@ SeCov was developed and tested only with __Python3__.
 
 ## Usage
 
-- List all options\
-  ```python secov.py --help```
-- Scan a project\
-  ```python secov.py -p my_super_secured_project -d /Users/johndoe/projects/my-secured-project/```
+- List all options
+  ```bash
+  secov --help
+  ```
+- Scan a project
+  ```bash
+  secov -p my_super_secured_project -d /Users/johndoe/projects/my-secured-project/
+  ```
 - Custom Sqlite file path - By default the sqlite file is saved to /tmp/secov.sqlite
   ```bash
-  python secov.py -p my_super_secured_project -d /Users/johndoe/projects/my-secured-project/
+  secov -p my_super_secured_project -d /Users/johndoe/projects/my-secured-project/
   ```
 ---
 ## Roadmap
 - Support other languages and frameworks (PHP will probably be the next). Contributions are most welcome)
 - Generalize the annotation parsing code
 - Support inputs within routes (more annotations parsing)
-- Package as a python package
 
 ---
 ## Contributing
