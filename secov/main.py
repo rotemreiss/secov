@@ -35,7 +35,7 @@ def get_code_file_names(path, extensions):
     for root, dirs, files in os.walk(path):
         for file in files:
             if file.endswith(extensions):
-                 code_files.append(os.path.join(root, file))
+                code_files.append(os.path.join(root, file))
     return code_files
 
 
@@ -168,16 +168,16 @@ def get_route_from_annotation(annotation, is_base_route):
         return rel_placeholder + get_first_route(content)
 
 
-def main(db_path, project, git_repo, git_branch="master", projects_dir=False, code_extensions="java,class", test_extensions="groovy"):
+def main(db_path, project, git_repo, git_branch="master", project_dir=False, code_extensions="java,class", test_extensions="groovy"):
 
     # Clone repository in case of a git repository instead of a local URI.
     if git_repo:
-        if not projects_dir:
+        if not project_dir:
             base_path = os.path.dirname(os.path.realpath(__file__))
-            projects_dir = f'{base_path}/../projects'
+            project_dir = f'{base_path}/../projects'
 
         # Create a project dir in the projects dir.
-        project_dir = f'{projects_dir}/{project}'
+        project_dir = f'{project_dir}/{project}'
 
         # Delete any existing directory if exists.
         shutil.rmtree(project_dir, True)
@@ -232,13 +232,13 @@ def interactive():
                         type=dir_path,
                         dest='project_dir')
 
-    parser.add_argument('--db', help='Database file path (absolute path).', dest='db_path',
+    parser.add_argument('-db', '--database', help='Database file path (absolute path).', dest='db_path',
                         default="/tmp/secov.sqlite")
 
-    parser.add_argument('-ce', '--code-extensions', help='The code files extensions.', default=['java,class'],
+    parser.add_argument('-ce', '--code-extensions', help='The code files extensions.', default='java,class',
                         type=str,
                         dest='code_extensions')
-    parser.add_argument('-te', '--test-extensions', help='The test files extensions.', default=['groovy'],
+    parser.add_argument('-te', '--test-extensions', help='The test files extensions.', default='groovy',
                         type=str,
                         dest='test_extensions')
 
