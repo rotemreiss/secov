@@ -1,4 +1,7 @@
-__pycache__/
-secov.sqlite
 .idea
+.DS_Store
+
+__pycache__/
+
+secov.sqlite
 projects
